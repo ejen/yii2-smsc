@@ -2,6 +2,7 @@
 
 namespace ejen\smsc;
 
+use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
@@ -69,8 +70,17 @@ class Smsc extends \yii\base\Component
     }
 
     public function apiCall($method, $params)
-    {        
+    {
+        Yii::trace(
+            [
+                'method' => $method,
+                'params' => $params,
+            ],
+            'smsc'
+        );
         $response = file_get_contents($this->baseUrl.$method.'?'.http_build_query($params));
+        Yii::trace($response, 'smsc');
+
         switch($this->fmt)
         {
             case 3: // json
