@@ -12,43 +12,63 @@ class Smsc extends \yii\base\Component
 
     public $baseUrl = 'https://smsc.ru/sys/';
 
-    public function send($numbers, $message, $params = [])
+    public $fmt = 3;
+
+    public function status($numbers, $ids, $params = [])
     {
-        $phones = $numbers;
-        if (is_array($numbers))
-        {
-            $phones = implode(";", $numbers);
-        }
-
-        $params = ArrayHelper::merge(
-            [
-                'login' => $this->login,
-                'psw' => md5($this->password),
-                'phones' => $phones,
-                'mes' => $message,
-                'charset' => 'utf-8',
-                'fmt' => 3, // json
-                'cost' => 3,
-            ],
-            $params
+        return $this->apiCall(
+            'send.php',
+            ArrayHelper::merge(
+                $this->commonParams,
+                [
+                    'phone' => implode(',', (array)$numbers),
+                    'id' => implode(',', (array)$ids),
+                    'charset' => 'utf-8',
+                ],
+                $params
+            )
         );
-
-        $response = file_get_contents($this->baseUrl.'send.php?'.http_build_query($params));
-        return Json::decode($response);
     }
 
-    public function getBalance($params = [])
+    public function send($numbers, $message, $params = [])
     {
-        $params = ArrayHelper::merge(
-            [
-                'login' => $this->login,
-                'psw' => md5($this->password),
-                'fmt' => 3,
-            ],
-            $params
+        return $this->apiCall(
+            'send.php',
+            ArrayHelper::merge(
+                $this->commonParams,
+                [
+                    'phones' => implode(';', (array)$numbers),
+                    'mes' => $message,
+                    'charset' => 'utf-8',
+                    'cost' => 3,
+                ],
+                $params
+            )
         );
+    }
 
-        $response = file_get_contents($this->baseUrl.'balance.php?'.http_build_query($params));
-        return Json::decode($response);
+    public function balance($params = [])
+    {
+        return $this->apiCall(
+            'balance.php',
+            ArrayHelper::merge(
+                $this->commonParams,
+                $params
+            )
+        );
+    }
+
+    public function getCommonParams()
+    {
+        return [
+            'login' => $this->login,
+            'psw' => md5($this->password),
+            'fmt' => $this->fmt,
+        ];
+    }
+
+    public function apiCall($method, $params)
+    {
+        return file_get_contents($this->baseUrl.$method.'?'.http_build_query($params));
     }
 }
