@@ -12,6 +12,7 @@ class Smsc extends \yii\base\Component
 
     public $baseUrl = 'https://smsc.ru/sys/';
 
+    public $charset = 'utf-8';
     public $fmt = 3;
 
     public function status($numbers, $ids, $params = [])
@@ -23,7 +24,7 @@ class Smsc extends \yii\base\Component
                 [
                     'phone' => implode(',', (array)$numbers),
                     'id' => implode(',', (array)$ids),
-                    'charset' => 'utf-8',
+                    'charset' => $this->charset,
                 ],
                 $params
             )
@@ -39,7 +40,7 @@ class Smsc extends \yii\base\Component
                 [
                     'phones' => implode(';', (array)$numbers),
                     'mes' => $message,
-                    'charset' => 'utf-8',
+                    'charset' => $this->charset,
                     'cost' => 3,
                 ],
                 $params
