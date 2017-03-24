@@ -69,7 +69,14 @@ class Smsc extends \yii\base\Component
     }
 
     public function apiCall($method, $params)
-    {
-        return file_get_contents($this->baseUrl.$method.'?'.http_build_query($params));
+    {        
+        $response = file_get_contents($this->baseUrl.$method.'?'.http_build_query($params));
+        switch($this->fmt)
+        {
+            case 3: // json
+                return Json::decode($response);
+            default: // raw
+                return $response;
+        }
     }
 }
